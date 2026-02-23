@@ -1,6 +1,0 @@
-{
-    "PluginID": "chat_platform_support",
-    "PluginName": "SnowX Framework Chat Platform Support",
-    "PluginVersion": "1.0.0",
-    "EntryPoint": "plugin"
-}

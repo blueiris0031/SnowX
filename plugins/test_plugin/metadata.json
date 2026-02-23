@@ -1,9 +1,0 @@
-{
-    "PluginID": "test",
-    "PluginName": "Test",
-    "PluginVersion": "1.0.0",
-    "EntryPoint": "test",
-    "DependentPlugins": {
-        "lazy_init": []
-    }
-}
