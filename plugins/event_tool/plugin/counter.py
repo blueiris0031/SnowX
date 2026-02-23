@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from snowx.api.logger import get_logger
 
 
@@ -12,7 +13,6 @@ class Counter:
     def load(self, filepath: Path) -> None:
         if not filepath.is_file():
             return
-
         try:
             with open(filepath, "r") as f:
                 self.count = max(0, int(f.read()))
