@@ -1,0 +1,11 @@
+{
+    "PluginID": "lazy_init",
+    "PluginName": "Lazy Init Callback",
+    "PluginVersion": "1.0.0",
+    "EntryPoint": "plugin",
+    "DependentPlugins": {
+        "more_trigger": [
+            "1.0.*"
+        ]
+    }
+}

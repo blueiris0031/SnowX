@@ -1,0 +1,9 @@
+{
+    "PluginID": "snowx_config",
+    "PluginName": "SnowX Config Manager",
+    "PluginVersion": "1.0.0",
+    "EntryPoint": "plugin",
+    "DependentModules": [
+        "pyyaml"
+    ]
+}

@@ -1,0 +1,9 @@
+{
+    "PluginID": "more_trigger",
+    "PluginName": "More Trigger",
+    "PluginVersion": "1.0.0",
+    "EntryPoint": "plugin",
+    "DependentModules": [
+        "croniter"
+    ]
+}
