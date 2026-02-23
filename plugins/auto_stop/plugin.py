@@ -5,8 +5,12 @@ from snowx.plugins.snowx_config import get_config, auto_config
 from snowx.types.event import SnowXStopEvent
 
 
-countdown = get_config(count_down=auto_config(-1)).get("count_down")
-countdown = max(-1, countdown)
+countdown = max(
+    -1,
+    get_config(
+        count_down=auto_config(-1),
+    ).get("count_down")
+)
 
 
 if countdown > -1:
