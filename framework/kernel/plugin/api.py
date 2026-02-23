@@ -61,6 +61,10 @@ def get_id_from_stack(identifier: str | None = None, level: int = 1) -> str:
     return getattr(metadata, "id", "")
 
 
+def get_plugin_id() -> str:
+    return get_id_from_stack(level=2)
+
+
 __all__ = [
     "refresh_infos",
     "load_plugin",
@@ -72,4 +76,5 @@ __all__ = [
     "get_loaded_plugins",
     "get_unloaded_plugins",
     "get_id_from_stack",
+    "get_plugin_id",
 ]
