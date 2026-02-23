@@ -1,0 +1,10 @@
+__pycache__/
+
+/*
+
+!framework/
+!plugins/
+
+!.gitignore
+!ancillary.py
+!main.py
