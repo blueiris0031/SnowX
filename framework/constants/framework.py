@@ -6,7 +6,7 @@ from ..utils.version import Version
 class FrameworkMetadata:
     ID: str = "snowx"
     NAME: str = "SnowX Framework"
-    VERSION: Version = Version("1.0.0")
+    VERSION: Version = Version("0.1.0")
 
 
 FRAMEWORK_METADATA = FrameworkMetadata()
