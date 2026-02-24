@@ -1,6 +1,6 @@
 from . import event_processor
 from . import manager
-from . import start
+from . import default_injections
 
 
 __all__ = [
