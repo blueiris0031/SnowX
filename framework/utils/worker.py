@@ -43,7 +43,7 @@ class ProducerConsumerWorker:
 
             await consumer
 
-    async def _clear_consumer(self) -> None:
+    async def _clean_consumer(self) -> None:
         while not self._consumer_queue.empty():
             consumer = self._consumer_queue.get_nowait()
             self._consumer_queue.task_done()
@@ -93,7 +93,7 @@ class ProducerConsumerWorker:
             pass
         self._consumer_loop_task = None
 
-        await self._clear_consumer() # Cleaning up of forced stop.
+        await self._clean_consumer() # Cleaning up of forced stop.
         self._completion_lock = None
 
 
