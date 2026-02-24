@@ -10,8 +10,8 @@ from ..plugin.api import (
     reload_plugin,
     reload_all,
 )
+from ...constants.framework import FRAMEWORK_METADATA
 from ...state.framework import (
-    SNOWX_STATE,
     SNOWX_STOP_STATE,
     set_stopping,
 )
@@ -33,12 +33,12 @@ from ...types.event import (
 from ...types.plugin import Metadata
 
 
-LOGGER = get_logger(SNOWX_STATE.NAME)
+LOGGER = get_logger(FRAMEWORK_METADATA.NAME)
 
 __plugin_metadata__ = Metadata(
-    id=SNOWX_STATE.ID,
-    name=SNOWX_STATE.NAME,
-    version=SNOWX_STATE.VERSION,
+    id=FRAMEWORK_METADATA.ID,
+    name=FRAMEWORK_METADATA.NAME,
+    version=FRAMEWORK_METADATA.VERSION,
     entry_point="",
     description="",
     dependent_framework_version=(),
