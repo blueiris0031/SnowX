@@ -66,7 +66,7 @@ class FrameworkManager:
 
         self._framework_start_sign = False
         set_stopping()
-        for func in self._stop_func:
+        for func in self._stop_func[::-1]:
             await func(force)
 
         LOGGER.info("Framework stopped.")
