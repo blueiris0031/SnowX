@@ -1,5 +1,5 @@
 from .manager import PluginManager, plugin_manager
-from ...state.framework import SNOWX_STATE
+from ...constants.framework import FRAMEWORK_METADATA
 
 
 def load_check_sx_version(manager: PluginManager, identifier: str) -> bool:
@@ -7,7 +7,7 @@ def load_check_sx_version(manager: PluginManager, identifier: str) -> bool:
         return False
 
     dep_version = manager.plugin_infos[identifier].metadata.dependent_framework_version
-    return SNOWX_STATE.VERSION.auto_check(dep_version)
+    return FRAMEWORK_METADATA.VERSION.auto_check(dep_version)
 
 def unload_check_sx_version(*_) -> None:
     return None
