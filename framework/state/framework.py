@@ -7,10 +7,6 @@ from ..utils.version import Version
 
 @dataclass(frozen=True)
 class SnowXState:
-    ID: str = "snowx"
-    NAME: str = "SnowX Framework"
-    VERSION: Version = Version("1.0.0")
-
     IS_STARTED: asyncio.Event = asyncio.Event()
     IS_STOPPING: asyncio.Event = asyncio.Event()
 

@@ -2,9 +2,10 @@ import asyncio
 from os import execv
 from sys import executable, exit
 
+from framework.constants.framework import FRAMEWORK_METADATA
 from framework.kernel.logger import get_logger
 from framework.kernel.manager.manager import framework_manager
-from framework.state.framework import SNOWX_STATE, SNOWX_STOP_STATE, wait_stopping
+from framework.state.framework import SNOWX_STOP_STATE, wait_stopping
 
 
 LOGGER = get_logger("SnowXControlScript")
@@ -17,7 +18,7 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    LOGGER.info(f"Ready to start {SNOWX_STATE.NAME}.")
+    LOGGER.info(f"Ready to start {FRAMEWORK_METADATA.NAME}.")
     asyncio.run(main())
 
     anci_args: list[str] = []
