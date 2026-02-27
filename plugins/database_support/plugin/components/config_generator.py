@@ -1,7 +1,7 @@
 from typing import Callable
 
 
-class URLGeneratorManager:
+class ConfigGenerator:
     def __init__(self):
         self._url_generators: dict[str, Callable[..., str]] = {}
 
