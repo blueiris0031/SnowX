@@ -23,7 +23,8 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        LOGGER.info("Received the stop signal, ready to stop.")
+        LOGGER.warning("Received the stop signal, ready to stop.")
+        LOGGER.warning("This shutdown behavior is unsafe and not recommended when it is not necessary.")
         asyncio.run(framework_manager.stop(SNOWX_STOP_STATE.FORCE_STOP))
 
     anci_args: list[str] = []
