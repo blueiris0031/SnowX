@@ -14,6 +14,7 @@ class SnowXState:
 @dataclass
 class SnowXStopState:
     STATE: StopState = StopState.Null
+    FORCE: bool = False
     UPDATE_PACK: Path | None = None
 
 
