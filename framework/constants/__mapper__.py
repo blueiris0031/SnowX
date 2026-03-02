@@ -2,7 +2,7 @@ from . import callback
 from . import command_runner
 from . import framework
 from . import path
-from . import stop_state
+from . import framework_state
 from . import vmodule
 from ..constants.vmodule import VMODULE_ROOT_PATH, VMODULE_SUBROOT_PATH
 from ..kernel.vmodule.expand import Adder

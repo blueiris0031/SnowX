@@ -2,7 +2,7 @@ import asyncio
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..constants.stop_state import StopState
+from ..constants.framework_state import StopState
 
 
 @dataclass(frozen=True)
