@@ -2,7 +2,7 @@ import asyncio
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..utils.version import Version
+from ..constants.stop_state import StopState
 
 
 @dataclass(frozen=True)
@@ -13,9 +13,7 @@ class SnowXState:
 
 @dataclass
 class SnowXStopState:
-    FORCE_STOP: bool = False
-    RESTART: bool = False
-    UPDATE: bool = False
+    STATE: StopState = StopState.Null
     UPDATE_PACK: Path | None = None
 
 
