@@ -1,4 +1,4 @@
-from ..constants.framework_state import StopState
+from ..constants.framework import StopState
 from ..types.framework_state import SnowXState, SnowXStopState
 
 
