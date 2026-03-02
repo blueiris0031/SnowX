@@ -10,9 +10,9 @@ from ..plugin.api import (
     reload_plugin,
     reload_all,
 )
-from ...constants.framework import FRAMEWORK_METADATA
+from ...constants.framework import FRAMEWORK_METADATA, StopState
 from ...state.framework import (
-    SNOWX_STOP_STATE,
+    get_stop_state,
     set_stopping,
 )
 from ...types.event import (
@@ -64,29 +64,24 @@ def process_logger(
 @on_process(event_type=SnowXStopEvent)
 @process_logger
 async def snowx_stop(event: SnowXStopEvent) -> None:
-    if event.force:
-        SNOWX_STOP_STATE.FORCE_STOP = True
-    set_stopping()
+    get_stop_state().FORCE = event.force
+    set_stopping(StopState.Stop)
 
 
 @on_process(event_type=SnowXRestartEvent)
 @process_logger
 async def snowx_restart(event: SnowXRestartEvent) -> None:
-    if event.force:
-        SNOWX_STOP_STATE.FORCE_STOP = True
-    SNOWX_STOP_STATE.RESTART = True
-    set_stopping()
+    get_stop_state().FORCE = event.force
+    set_stopping(StopState.Restart)
 
 
 @on_process(event_type=SnowXUpdateEvent)
 @process_logger
 async def snowx_update(event: SnowXUpdateEvent) -> None:
-    if event.force:
-        SNOWX_STOP_STATE.FORCE_STOP = True
-    SNOWX_STOP_STATE.RESTART = True
-    SNOWX_STOP_STATE.UPDATE = True
-    SNOWX_STOP_STATE.UPDATE_PACK = event.update_path
-    set_stopping()
+    state = get_stop_state()
+    state.FORCE = event.force
+    state.UPDATE_PACK = event.update_path
+    set_stopping(StopState.Update)
 
 
 @on_process(event_type=SnowXLoadPluginEvent)
