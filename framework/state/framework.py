@@ -1,20 +1,4 @@
-import asyncio
-from dataclasses import dataclass
-from pathlib import Path
-
-from ..constants.stop_state import StopState
-
-
-@dataclass(frozen=True)
-class SnowXState:
-    IS_STARTED: asyncio.Event = asyncio.Event()
-    IS_STOPPING: asyncio.Event = asyncio.Event()
-
-
-@dataclass
-class SnowXStopState:
-    STATE: StopState = StopState.Null
-    UPDATE_PACK: Path | None = None
+from ..types.framework_state import SnowXState, SnowXStopState
 
 
 SNOWX_STATE = SnowXState()
