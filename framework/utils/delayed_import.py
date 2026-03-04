@@ -5,7 +5,7 @@ from typing import Callable
 
 def delayed_import(all_: list[str], package: str) -> Callable[[str], ModuleType]:
     def getattr_(name: str) -> ModuleType:
-        if name in all_:
+        if not all_ or name in all_:
             return import_module(name, package)
         raise AttributeError(f"module {package} has no attribute {name}")
     return getattr_
