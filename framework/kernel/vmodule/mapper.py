@@ -9,7 +9,13 @@ def auto_mapper() -> None:
     if _is_mapped:
         return
 
-    for subpath in Path(__file__).parent.iterdir():
+    for subpath in (
+            Path(__file__)
+            .parent
+            .parent
+            .parent
+            .iterdir()
+    ):
         if not subpath.is_dir():
             continue
         try:

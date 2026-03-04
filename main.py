@@ -5,6 +5,6 @@ if __name__ == "__main__":
     if len(sys_argv) > 1:
         from tools.tools_runner import main
     else:
-        from framework import main
+        from framework.main import main
 
     main()
