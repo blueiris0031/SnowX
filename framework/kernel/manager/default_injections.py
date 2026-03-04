@@ -5,9 +5,11 @@ from ..callback.scheduler import process_scheduler
 from ..config import save_config
 from ..event.distributor import event_distributor_manager
 from ..plugin.manager import plugin_manager
+from ..vmodule.mapper import auto_mapper
 from ...constants.framework import FRAMEWORK_METADATA
 
 
+framework_manager.inject_start_func(auto_mapper)
 framework_manager.inject_start_func(save_config)
 framework_manager.inject_start_func(event_distributor_manager.start)
 framework_manager.inject_start_func(partial(process_scheduler.start, FRAMEWORK_METADATA.ID))
