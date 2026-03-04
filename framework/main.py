@@ -7,6 +7,7 @@ from typing import NoReturn
 
 from .kernel.manager.manager import framework_manager
 from .state.framework import set_stopping, SNOWX_STOP_STATE, wait_stopping
+from .constants.framework import StopState
 
 
 async def framework_main() -> None:
@@ -15,16 +16,16 @@ async def framework_main() -> None:
 
     await framework_manager.start()
     await wait_stopping()
-    await framework_manager.stop(SNOWX_STOP_STATE.FORCE_STOP)
+    await framework_manager.stop(SNOWX_STOP_STATE.FORCE)
 
 
 def main() -> NoReturn:
     asyncio.run(framework_main())
 
     anci_args: list[str] = []
-    if SNOWX_STOP_STATE.RESTART:
+    if SNOWX_STOP_STATE.STATE is StopState.Restart:
         anci_args.append("restart")
-    if SNOWX_STOP_STATE.UPDATE:
+    if SNOWX_STOP_STATE.STATE is StopState.Update:
         anci_args.append("update")
         anci_args.append(str(SNOWX_STOP_STATE.UPDATE_PACK))
 
