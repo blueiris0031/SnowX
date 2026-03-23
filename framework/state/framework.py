@@ -1,34 +1,22 @@
-import asyncio
-from dataclasses import dataclass
-from pathlib import Path
-
-from ..utils.version import Version
-
-
-@dataclass(frozen=True)
-class SnowXState:
-    IS_STARTED: asyncio.Event = asyncio.Event()
-    IS_STOPPING: asyncio.Event = asyncio.Event()
-
-
-@dataclass
-class SnowXStopState:
-    FORCE_STOP: bool = False
-    RESTART: bool = False
-    UPDATE: bool = False
-    UPDATE_PACK: Path | None = None
+from ..constants.framework import StopState
+from ..types.framework_state import SnowXState, SnowXStopState
 
 
 SNOWX_STATE = SnowXState()
 SNOWX_STOP_STATE = SnowXStopState()
 
 
+def get_stop_state() -> SnowXStopState:
+    return SNOWX_STOP_STATE
+
+
 def set_started() -> None:
     SNOWX_STATE.IS_STARTED.set()
 
 
-def set_stopping() -> None:
+def set_stopping(state: StopState = StopState.Stop) -> None:
     SNOWX_STATE.IS_STOPPING.set()
+    SNOWX_STOP_STATE.STATE = state
 
 
 async def wait_started() -> None:
@@ -43,6 +31,7 @@ __all__ = [
     "SNOWX_STATE",
     "SNOWX_STOP_STATE",
 
+    "get_stop_state",
     "set_started",
     "set_stopping",
     "wait_started",

@@ -65,7 +65,6 @@ class FrameworkManager:
             return
 
         self._framework_start_sign = False
-        set_stopping()
         for func in self._stop_func[::-1]:
             await func(force)
 

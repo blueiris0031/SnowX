@@ -6,14 +6,15 @@ from ..kernel.vmodule.expand import Adder
 
 api_adder = Adder(f"{VMODULE_ROOT_PATH.ROOT}.{VMODULE_SUBROOT_PATH.API}.state")
 
-api_adder.add_function()(framework.wait_started)
-api_adder.add_function()(framework.wait_stopping)
+api_adder.add_function(framework.wait_started)
+api_adder.add_function(framework.wait_stopping)
 
 
 kernel_adder = Adder(f"{VMODULE_ROOT_PATH.ROOT}.{VMODULE_SUBROOT_PATH.KERNEL}.state")
 
-kernel_adder.add_function()(framework.set_started)
-kernel_adder.add_function()(framework.set_stopping)
+kernel_adder.add_function(framework.get_stop_state)
+kernel_adder.add_function(framework.set_started)
+kernel_adder.add_function(framework.set_stopping)
 
 
 state_adder = Adder(f"{VMODULE_ROOT_PATH.ROOT}.{VMODULE_SUBROOT_PATH.STATE}")
