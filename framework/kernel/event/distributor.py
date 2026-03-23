@@ -53,8 +53,13 @@ class EventDistributorManager:
         await asyncio.gather(*(queue.auto_put(event) for queue in distributors))
 
     def get_distributor(self, symbol: Hashable, event_types: set[Type[BaseEvent]]) -> TypedAsyncQueue:
+        distributor, rec_types = self._distributors.setdefault(symbol, (TypedAsyncQueue(BaseEvent, DISTRIBUTOR_QUEUE_MAXSIZE), set()))
+        if event_types == rec_types:
+            return distributor
+
+        rec_types.update(event_types)
         self._event_distributor_cache.clear()
-        return self._distributors.setdefault(symbol, (TypedAsyncQueue(BaseEvent, DISTRIBUTOR_QUEUE_MAXSIZE), event_types))[0]
+        return distributor
 
     def del_distributor(self, symbol: Hashable) -> None:
         self._event_distributor_cache.clear()
