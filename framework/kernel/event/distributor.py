@@ -25,8 +25,10 @@ class EventDistributorManager:
             self._consumer,
             DISTRIBUTOR_BUFFER_MAXSIZE,
         )
+        LOGGER.debug("ProducerConsumerWorker initialized.")
 
         self._event_distributor_cache: dict[Type[BaseEvent], list[TypedAsyncQueue]] = {}
+        LOGGER.debug("EventDistributorManager initialized.")
 
     def _get_event_distributor(self, event: BaseEvent) -> list[TypedAsyncQueue]:
         event_type = event.__class__
@@ -93,6 +95,7 @@ class EventDistributorManager:
 
 
 event_distributor_manager = EventDistributorManager()
+LOGGER.debug("EventDistributorManager initialized.")
 
 
 __all__ = [
