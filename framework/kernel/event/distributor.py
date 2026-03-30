@@ -20,7 +20,7 @@ class EventDistributorManager:
     def __init__(self):
         self._distributors: dict[Hashable, tuple[TypedAsyncQueue, set[Type[BaseEvent]]]] = {}
 
-        self._scheduler = ProducerConsumerWorker(
+        self._worker = ProducerConsumerWorker(
             self._producer,
             self._consumer,
             DISTRIBUTOR_BUFFER_MAXSIZE,
@@ -75,19 +75,19 @@ class EventDistributorManager:
         self._distributors.clear()
 
     async def start(self) -> None:
-        if self._scheduler.is_running():
+        if self._worker.is_running():
             LOGGER.warning("Distributor is already running.")
             return
 
-        await self._scheduler.start()
+        await self._worker.start()
         LOGGER.info("Distributor started successfully.")
 
     async def stop(self, force_stop: bool = False) -> None:
-        if not self._scheduler.is_running():
+        if not self._worker.is_running():
             LOGGER.warning("Distributor is not running.")
             return
 
-        await self._scheduler.stop(force_stop)
+        await self._worker.stop(force_stop)
         self.clear_distributor()
         LOGGER.info("Distributor stopped successfully.")
 
