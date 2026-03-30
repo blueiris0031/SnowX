@@ -7,6 +7,7 @@ from ..logger import get_logger
 from ...types.event import BaseEvent
 from ...utils.queue import TypedAsyncQueue
 from ...utils.worker import ProducerConsumerWorker
+from copy import copy
 
 
 DISTRIBUTOR_QUEUE_MAXSIZE = get_config("DISTRIBUTOR_QUEUE_MAXSIZE", 1024)
@@ -19,13 +20,15 @@ class EventDistributorManager:
     def __init__(self):
         self._distributors: dict[Hashable, tuple[TypedAsyncQueue, set[Type[BaseEvent]]]] = {}
 
-        self._scheduler = ProducerConsumerWorker(
+        self._worker = ProducerConsumerWorker(
             self._producer,
             self._consumer,
             DISTRIBUTOR_BUFFER_MAXSIZE,
         )
+        LOGGER.debug("ProducerConsumerWorker initialized.")
 
         self._event_distributor_cache: dict[Type[BaseEvent], list[TypedAsyncQueue]] = {}
+        LOGGER.debug("EventDistributorManager initialized.")
 
     def _get_event_distributor(self, event: BaseEvent) -> list[TypedAsyncQueue]:
         event_type = event.__class__
@@ -52,9 +55,18 @@ class EventDistributorManager:
             return
         await asyncio.gather(*(queue.auto_put(event) for queue in distributors))
 
-    def get_distributor(self, symbol: Hashable, event_types: set[Type[BaseEvent]]) -> TypedAsyncQueue:
-        self._event_distributor_cache.clear()
-        return self._distributors.setdefault(symbol, (TypedAsyncQueue(BaseEvent, DISTRIBUTOR_QUEUE_MAXSIZE), event_types))[0]
+    def get_distributor(self, symbol: Hashable, event_types: tuple[Type[BaseEvent], ...], replace: bool = False) -> TypedAsyncQueue:
+        distributor, rec_types = self._distributors.setdefault(symbol, (TypedAsyncQueue(BaseEvent, DISTRIBUTOR_QUEUE_MAXSIZE), set()))
+
+        old_types = copy(rec_types)
+        if replace:
+            rec_types.clear()
+
+        rec_types.update(event_types)
+        if old_types != rec_types:
+            self._event_distributor_cache.clear()
+
+        return distributor
 
     def del_distributor(self, symbol: Hashable) -> None:
         self._event_distributor_cache.clear()
@@ -65,24 +77,25 @@ class EventDistributorManager:
         self._distributors.clear()
 
     async def start(self) -> None:
-        if self._scheduler.is_running():
+        if self._worker.is_running():
             LOGGER.warning("Distributor is already running.")
             return
 
-        await self._scheduler.start()
+        await self._worker.start()
         LOGGER.info("Distributor started successfully.")
 
     async def stop(self, force_stop: bool = False) -> None:
-        if not self._scheduler.is_running():
+        if not self._worker.is_running():
             LOGGER.warning("Distributor is not running.")
             return
 
-        await self._scheduler.stop(force_stop)
+        await self._worker.stop(force_stop)
         self.clear_distributor()
         LOGGER.info("Distributor stopped successfully.")
 
 
 event_distributor_manager = EventDistributorManager()
+LOGGER.debug("EventDistributorManager initialized.")
 
 
 __all__ = [
