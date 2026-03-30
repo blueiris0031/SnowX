@@ -7,6 +7,7 @@ from ..logger import get_logger
 from ...types.event import BaseEvent
 from ...utils.queue import TypedAsyncQueue
 from ...utils.worker import ProducerConsumerWorker
+from copy import copy
 
 
 DISTRIBUTOR_QUEUE_MAXSIZE = get_config("DISTRIBUTOR_QUEUE_MAXSIZE", 1024)
@@ -52,13 +53,17 @@ class EventDistributorManager:
             return
         await asyncio.gather(*(queue.auto_put(event) for queue in distributors))
 
-    def get_distributor(self, symbol: Hashable, event_types: set[Type[BaseEvent]]) -> TypedAsyncQueue:
+    def get_distributor(self, symbol: Hashable, event_types: tuple[Type[BaseEvent], ...], replace: bool = False) -> TypedAsyncQueue:
         distributor, rec_types = self._distributors.setdefault(symbol, (TypedAsyncQueue(BaseEvent, DISTRIBUTOR_QUEUE_MAXSIZE), set()))
-        if event_types == rec_types:
-            return distributor
+
+        old_types = copy(rec_types)
+        if replace:
+            rec_types.clear()
 
         rec_types.update(event_types)
-        self._event_distributor_cache.clear()
+        if old_types != rec_types:
+            self._event_distributor_cache.clear()
+
         return distributor
 
     def del_distributor(self, symbol: Hashable) -> None:
