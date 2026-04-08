@@ -21,7 +21,10 @@ class BaseConnectionsConfigGenerator(ABC):
     def del_generator(cls, db_type: str) -> Optional[Type["BaseConnectionsConfigGenerator"]]:
         cls._generator_map.pop(db_type, None)
 
-    def __init_subclass__(cls, db_type: str) -> None:
+    def __init_subclass__(cls, db_type: str | None = None) -> None:
+        if db_type is None:
+            return
+
         cls.set_generator(db_type, cls)
 
     @classmethod
