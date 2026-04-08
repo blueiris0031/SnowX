@@ -3,6 +3,7 @@ from typing import Any, Optional, Type
 
 from tortoise import TortoiseConfig
 from tortoise.config import ConnectionConfig
+from tortoise.exceptions import ConfigurationError
 
 
 class BaseConnectionsConfigGenerator(ABC):
@@ -35,7 +36,7 @@ class BaseConnectionsConfigGenerator(ABC):
 def get_connections_config(db_type: str, **credentials) -> ConnectionConfig:
     generator = BaseConnectionsConfigGenerator.get_generator(db_type)
     if generator is None:
-        raise ValueError(f"Unknown database type: {db_type}")
+        raise ConfigurationError(f"Unknown database type: {db_type}")
 
     return ConnectionConfig(
         engine=generator.get_engine(),
