@@ -20,7 +20,7 @@ class BaseConfig(ABC):
         return self._default
 
     @abstractmethod
-    def verify_config(self, config: Any) -> bool: ...
+    def check_config(self, config: Any) -> Any: ...
 
     @abstractmethod
     def get_default_config(self) -> Any: ...
@@ -36,8 +36,11 @@ class DictConfig(BaseContainerConfig, allow_type=dict):
     def __init__(self, default: dict[str, Any]):
         super().__init__(default)
 
-    def verify_config(self, config: dict[str, Any]) -> bool:
+    def check_config(self, config: dict[str, Any]) -> dict[str, Any]:
+        config = copy(config)
 
+        for d_key, d_value in self.default:
+            if d_key not in config:
 
 
 class RootConfig(DictConfig):
