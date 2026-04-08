@@ -29,17 +29,17 @@ class BaseConnectionsConfigGenerator(ABC):
 
     @classmethod
     @abstractmethod
-    def get_credentials(cls, **kwargs: Any) -> dict[str, Any]: ...
+    def get_credentials(cls, **credentials: Any) -> dict[str, Any]: ...
 
 
-def get_connections_config(db_type: str, **db_config) -> ConnectionConfig:
+def get_connections_config(db_type: str, **credentials) -> ConnectionConfig:
     generator = BaseConnectionsConfigGenerator.get_generator(db_type)
     if generator is None:
         raise ValueError(f"Unknown database type: {db_type}")
 
     return ConnectionConfig(
         engine=generator.get_engine(),
-        credentials=generator.get_credentials(**db_config)
+        credentials=generator.get_credentials(**credentials)
     )
 
 
