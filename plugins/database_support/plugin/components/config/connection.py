@@ -3,7 +3,7 @@ from tortoise.exceptions import ConfigurationError
 from ...base.config.connection import BaseConnectionConfigGenerator
 
 
-class SqliteConnectionConfigGenerator(BaseConnectionConfigGenerator):
+class SqliteConnectionConfigGenerator(BaseConnectionConfigGenerator, db_type="sqlite"):
     @classmethod
     def get_engine(cls) -> str:
         return "tortoise.backends.sqlite"
