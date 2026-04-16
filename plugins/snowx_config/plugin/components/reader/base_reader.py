@@ -17,10 +17,10 @@ class BaseReader(ABC):
     def get_reader(cls, type_: str) -> Optional["BaseReader"]:
         return cls._type_map.get(type_, None)
 
-    def s_read(self, path: Path) -> dict:
+    def s_read(self, path: Path, **kwargs) -> dict:
         try:
             self._logger.info(f"Trying to read [{path}]...")
-            result = self.read(path)
+            result = self.read(path, **kwargs)
             if not isinstance(result, dict):
                 raise TypeError(f'Reading result of the [{path}] is not a dict')
 
@@ -29,21 +29,21 @@ class BaseReader(ABC):
             self._logger.error(f"Failed to read [{path}], use empty dict.", exc_info=e)
             return {}
 
-    def s_write(self, path: Path, data: dict) -> None:
+    def s_write(self, path: Path, data: dict, **kwargs) -> None:
         try:
             self._logger.info(f"Trying to write [{path}] ...")
             if not isinstance(data, dict):
                 raise TypeError(f'Data to be written to the [{path}] is not a dict')
 
-            self.write(path, data)
+            self.write(path, data, **kwargs)
         except Exception as e:
             self._logger.error(f"Failed to write [{path}].", exc_info=e)
 
     @abstractmethod
-    def read(self, path: Path) -> dict: ...
+    def read(self, path: Path, **kwargs) -> dict: ...
 
     @abstractmethod
-    def write(self, path: Path, data: dict) -> None: ...
+    def write(self, path: Path, data: dict, **kwargs) -> None: ...
 
 
 __all__ = [
