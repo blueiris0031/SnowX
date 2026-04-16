@@ -4,6 +4,6 @@
     "PluginVersion": "1.0.0",
     "EntryPoint": "plugin",
     "DependentModules": [
-        "pyyaml"
+        "pydantic"
     ]
 }
