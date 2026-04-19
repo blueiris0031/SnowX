@@ -6,18 +6,33 @@ from snowx.api.logger import get_logger
 
 
 class BaseConverter(ABC):
-    _name_map = {}
+    _name_map: dict[str, Type["BaseConverter"]] = {}
     _logger = get_logger("SnowXConfigConverter")
 
-    def __init_subclass__(cls, name: str) -> None:
-        if name not in cls._name_map:
-            cls._name_map[name] = cls
+    def __init_subclass__(cls, name: str, cover: bool = False) -> None:
+        cls.register_converter(name, cls, cover)
 
     @classmethod
-    def get_converter(cls, name: str) -> Optional["BaseConverter"]:
+    def register_converter(cls, name: str, converter: Type["BaseConverter"], cover: bool) -> None:
+        if name in cls._name_map and not cover:
+            return
+        cls._name_map[name] = converter
+
+    @classmethod
+    def cancel_converter(cls, name: str) -> None:
+        cls._name_map.pop(name, None)
+
+    @classmethod
+    def get_converter(cls, name: str) -> Optional[Type["BaseConverter"]]:
         return cls._name_map.get(name, None)
 
-    def s_load(self, n_data: dict, model: Type[BaseModel], **kwargs) -> BaseModel | None:
+    @abstractmethod
+    def load(self, n_data: dict, model: Type[BaseModel], **kwargs) -> BaseModel: ...
+
+    @abstractmethod
+    def dump(self, s_data: BaseModel, **kwargs) -> dict: ...
+
+    def safe_load(self, n_data: dict, model: Type[BaseModel], **kwargs) -> BaseModel | None:
         try:
             self._logger.info(f"Trying to load data...")
             return self.load(n_data, model, **kwargs)
@@ -25,7 +40,7 @@ class BaseConverter(ABC):
             self._logger.error(f"Failed to load data.", exc_info=e)
             return None
 
-    def s_dump(self, s_data: BaseModel, **kwargs) -> dict:
+    def safe_dump(self, s_data: BaseModel, **kwargs) -> dict:
         try:
             self._logger.info(f"Trying to dump data...")
             result = self.dump(s_data, **kwargs)
@@ -36,12 +51,6 @@ class BaseConverter(ABC):
         except Exception as e:
             self._logger.error(f"Failed to dump data.", exc_info=e)
             return {}
-
-    @abstractmethod
-    def load(self, n_data: dict, model: Type[BaseModel], **kwargs) -> BaseModel: ...
-
-    @abstractmethod
-    def dump(self, s_data: BaseModel, **kwargs) -> dict: ...
 
 
 __all__ = [
