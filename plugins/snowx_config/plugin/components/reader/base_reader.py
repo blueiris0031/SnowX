@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Type
 
 from snowx.api.logger import get_logger
 
@@ -9,15 +9,24 @@ class BaseReader(ABC):
     _type_map = {}
     _logger = get_logger("SnowXConfigReader")
 
-    def __init_subclass__(cls, allow_type: str) -> None:
-        if allow_type not in cls._type_map:
-            cls._type_map[allow_type] = cls
+    def __init_subclass__(cls, allow_type: str, cover: bool = False) -> None:
+        cls.register_reader(allow_type, cls, cover)
 
     @classmethod
-    def get_reader(cls, type_: str) -> Optional["BaseReader"]:
-        return cls._type_map.get(type_, None)
+    def register_reader(cls, allow_type: str, reader: Type["BaseReader"], cover: bool = False) -> None:
+        if allow_type in cls._type_map and not cover:
+            return
+        cls._type_map[allow_type] = reader
 
-    def s_read(self, path: Path, **kwargs) -> dict:
+    @classmethod
+    def cancel_reader(cls, allow_type: str) -> None:
+        cls._type_map.pop(allow_type, None)
+
+    @classmethod
+    def get_reader(cls, allow_type: str) -> Optional["BaseReader"]:
+        return cls._type_map.get(allow_type, None)
+
+    def safe_read(self, path: Path, **kwargs) -> dict:
         try:
             self._logger.info(f"Trying to read [{path}]...")
             result = self.read(path, **kwargs)
@@ -29,7 +38,7 @@ class BaseReader(ABC):
             self._logger.error(f"Failed to read [{path}], use empty dict.", exc_info=e)
             return {}
 
-    def s_write(self, path: Path, data: dict, **kwargs) -> None:
+    def safe_write(self, path: Path, data: dict, **kwargs) -> None:
         try:
             self._logger.info(f"Trying to write [{path}] ...")
             if not isinstance(data, dict):
