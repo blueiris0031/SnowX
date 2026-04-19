@@ -6,6 +6,8 @@ from .base_reader import BaseReader
 
 
 class JsonReader(BaseReader, allow_type="json"):
+    _file_suffix = "json"
+
     _r_default_read_kwargs = {}
     _r_default_write_kwargs = {
         "ensure_ascii": False,

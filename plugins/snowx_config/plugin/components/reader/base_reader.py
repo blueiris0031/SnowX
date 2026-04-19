@@ -26,6 +26,20 @@ class BaseReader(ABC):
     def get_reader(cls, file_type: str) -> Optional[Type["BaseReader"]]:
         return cls._type_map.get(file_type, None)
 
+    @property
+    @abstractmethod
+    def _file_suffix(self) -> str: ...
+
+    @abstractmethod
+    def read(self, path: Path, **kwargs) -> dict: ...
+
+    @abstractmethod
+    def write(self, path: Path, data: dict, **kwargs) -> None: ...
+
+    @property
+    def file_suffix(self) -> str:
+        return self._file_suffix
+
     def safe_read(self, path: Path, **kwargs) -> dict:
         try:
             self._logger.info(f"Trying to read [{path}]...")
@@ -48,15 +62,6 @@ class BaseReader(ABC):
         except Exception as e:
             self._logger.error(f"Failed to write [{path}].", exc_info=e)
 
-    @abstractmethod
-    def read(self, path: Path, **kwargs) -> dict: ...
-
-    @abstractmethod
-    def write(self, path: Path, data: dict, **kwargs) -> None: ...
-
-    @property
-    @abstractmethod
-    def file_suffix(self) -> str: ...
     
 __all__ = [
     "BaseReader",
