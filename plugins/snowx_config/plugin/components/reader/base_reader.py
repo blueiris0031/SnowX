@@ -9,22 +9,22 @@ class BaseReader(ABC):
     _type_map: dict[str, Type["BaseReader"]] = {}
     _logger = get_logger("SnowXConfigReader")
 
-    def __init_subclass__(cls, allow_type: str, cover: bool = False) -> None:
-        cls.register_reader(allow_type, cls, cover)
+    def __init_subclass__(cls, file_type: str, cover: bool = False) -> None:
+        cls.register_reader(file_type, cls, cover)
 
     @classmethod
-    def register_reader(cls, allow_type: str, reader: Type["BaseReader"], cover: bool = False) -> None:
-        if allow_type in cls._type_map and not cover:
+    def register_reader(cls, file_type: str, reader: Type["BaseReader"], cover: bool = False) -> None:
+        if file_type in cls._type_map and not cover:
             return
-        cls._type_map[allow_type] = reader
+        cls._type_map[file_type] = reader
 
     @classmethod
-    def cancel_reader(cls, allow_type: str) -> None:
-        cls._type_map.pop(allow_type, None)
+    def cancel_reader(cls, file_type: str) -> None:
+        cls._type_map.pop(file_type, None)
 
     @classmethod
-    def get_reader(cls, allow_type: str) -> Optional[Type["BaseReader"]]:
-        return cls._type_map.get(allow_type, None)
+    def get_reader(cls, file_type: str) -> Optional[Type["BaseReader"]]:
+        return cls._type_map.get(file_type, None)
 
     def safe_read(self, path: Path, **kwargs) -> dict:
         try:
@@ -54,7 +54,10 @@ class BaseReader(ABC):
     @abstractmethod
     def write(self, path: Path, data: dict, **kwargs) -> None: ...
 
-
+    @property
+    @abstractmethod
+    def file_suffix(self) -> str: ...
+    
 __all__ = [
     "BaseReader",
 ]
