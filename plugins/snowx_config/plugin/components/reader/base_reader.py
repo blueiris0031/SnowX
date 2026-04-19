@@ -6,7 +6,7 @@ from snowx.api.logger import get_logger
 
 
 class BaseReader(ABC):
-    _type_map = {}
+    _type_map: dict[str, Type["BaseReader"]] = {}
     _logger = get_logger("SnowXConfigReader")
 
     def __init_subclass__(cls, allow_type: str, cover: bool = False) -> None:
@@ -23,7 +23,7 @@ class BaseReader(ABC):
         cls._type_map.pop(allow_type, None)
 
     @classmethod
-    def get_reader(cls, allow_type: str) -> Optional["BaseReader"]:
+    def get_reader(cls, allow_type: str) -> Optional[Type["BaseReader"]]:
         return cls._type_map.get(allow_type, None)
 
     def safe_read(self, path: Path, **kwargs) -> dict:
