@@ -21,10 +21,8 @@ class JsonReader(BaseReader, file_type="json"):
             write_kwargs: dict[str, Any] | None = None,
     ):
         self._encoding = encoding
-        if isinstance(read_kwargs, dict):
-            self._default_read_kwargs = {**self._r_default_read_kwargs, **read_kwargs}
-        if isinstance(write_kwargs, dict):
-            self._default_write_kwargs = {**self._r_default_write_kwargs, **write_kwargs}
+        self._default_read_kwargs = {**self._r_default_read_kwargs, **(read_kwargs or {})}
+        self._default_write_kwargs = {**self._r_default_write_kwargs, **(write_kwargs or {})}
 
     def read(self, path: Path, **kwargs: Any) -> dict:
         with open(path, "r", encoding=self._encoding) as f:
