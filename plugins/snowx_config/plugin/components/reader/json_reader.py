@@ -5,7 +5,7 @@ from typing import Any
 from .base_reader import BaseReader
 
 
-class JsonReader(BaseReader, allow_type="json"):
+class JsonReader(BaseReader, file_type="json"):
     _file_suffix = "json"
 
     _r_default_read_kwargs = {}
