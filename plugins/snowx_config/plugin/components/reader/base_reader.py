@@ -45,7 +45,7 @@ class BaseReader(ABC):
             self._logger.info(f"Trying to read [{path}]...")
             result = self.read(path, **kwargs)
             if not isinstance(result, dict):
-                raise TypeError(f'Reading result of the [{path}] is not a dict')
+                raise TypeError(f"Reading result of the [{path}] is not a dict")
 
             return result
         except Exception as e:
