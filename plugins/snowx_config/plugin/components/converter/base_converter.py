@@ -45,7 +45,7 @@ class BaseConverter(ABC):
             self._logger.info(f"Trying to dump data...")
             result = self.dump(s_data, **kwargs)
             if not isinstance(result, dict):
-                raise TypeError("Dumped data is not a dictionary")
+                raise TypeError("Dumped data is not a dict")
 
             return result
         except Exception as e:
