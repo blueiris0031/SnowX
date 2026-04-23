@@ -42,6 +42,8 @@ class ClockWorker:
             except Exception as e:
                 self._logger.error(f"Task exception", exc_info=e)
 
+        self._task.clear()
+
     async def start(self) -> None:
         if self._worker.is_running():
             self._logger.warning("Worker is already running.")
