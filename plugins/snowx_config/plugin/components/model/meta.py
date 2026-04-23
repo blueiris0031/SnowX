@@ -1,13 +1,7 @@
 from pathlib import Path
 from typing import Any, Type
 
-from pydantic import (
-    BaseModel,
-    TypeAdapter,
-    ValidationError,
-
-    field_validator,
-)
+from pydantic import BaseModel
 
 from ..converter import BaseConverter
 from ..reader import BaseReader
@@ -21,20 +15,6 @@ class BaseConfigModelMeta(type(BaseModel)):
         def _cm_get_model_type(cls) -> str:
             return cls._cm_model_type
         model_class._cm_get_model_type = _cm_get_model_type
-
-    @classmethod
-    def add_cm_fallback_default(mcs, model_class: Any) -> None:
-        @field_validator("*", mode="before")
-        @classmethod
-        def _cm_fallback_default(cls, value, info):
-            field = cls.model_fields[info.field_name]
-            try:
-                TypeAdapter(field.annotation).validate_python(value)
-                return value
-            except ValidationError:
-                return field.default if field.default_factory is None else field.default_factory()
-
-        model_class._cm_fallback_default = _cm_fallback_default
 
     def __new__(
             mcs,
