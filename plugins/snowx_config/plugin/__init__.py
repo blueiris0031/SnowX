@@ -33,13 +33,21 @@ def gen_root_model_kwargs(
     return {
         "config_path": f_path,
         "config_reader": f_reader,
-        "config_converter": converter_ or None,
+        "config_converter": converter_() or None,
     }
 
 
 clock_worker = clock.clock_worker
-on_init(clock_worker.start)
-on_exit(clock_worker.stop)
+
+
+@on_init
+async def c_init():
+    await clock_worker.start()
+
+
+@on_exit
+async def c_exit():
+    await clock_worker.stop()
 
 
 __all__ = [

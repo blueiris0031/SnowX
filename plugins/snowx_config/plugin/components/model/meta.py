@@ -143,6 +143,8 @@ class BaseConfigRootModelMeta(BaseConfigModelMeta):
             cls,
             reader_kwargs: dict[str, Any] | None = None,
             converter_kwargs: dict[str, Any] | None = None,
+            reader_w_kwargs: dict[str, Any] | None = None,
+            converter_d_kwargs: dict[str, Any] | None = None,
     ):
         call = super().__call__
 
@@ -152,6 +154,10 @@ class BaseConfigRootModelMeta(BaseConfigModelMeta):
         if not cls.has_instance(cls._cm_config_path, cls):
             raw_config = cls._cm_config_reader.safe_read(cls._cm_config_path, **(reader_kwargs or {}))
             instance = cls._cm_config_converter.safe_load(raw_config, call, **(converter_kwargs or {})) or call()
+
+            if not raw_config:
+                instance._cm_save_config(reader_w_kwargs, converter_d_kwargs)
+
             cls._config_map[cls._cm_config_path] = (cls, instance)
 
         return cls._config_map[cls._cm_config_path][1]
