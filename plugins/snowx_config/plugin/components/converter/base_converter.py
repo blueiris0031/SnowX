@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Type
+from typing import Optional, Type, Callable
 
 from pydantic import BaseModel
 from snowx.api.logger import get_logger
@@ -27,15 +27,15 @@ class BaseConverter(ABC):
         return cls._name_map.get(name, None)
 
     @abstractmethod
-    def load(self, n_data: dict, model: Type[BaseModel], **kwargs) -> BaseModel: ...
+    def load(self, n_data: dict, call: Callable[..., BaseModel], **kwargs) -> BaseModel: ...
 
     @abstractmethod
     def dump(self, s_data: BaseModel, **kwargs) -> dict: ...
 
-    def safe_load(self, n_data: dict, model: Type[BaseModel], **kwargs) -> BaseModel | None:
+    def safe_load(self, n_data: dict, call: Callable[..., BaseModel], **kwargs) -> BaseModel | None:
         try:
             self._logger.info(f"Trying to load data...")
-            return self.load(n_data, model, **kwargs)
+            return self.load(n_data, call, **kwargs)
         except Exception as e:
             self._logger.error(f"Failed to load data.", exc_info=e)
             return None

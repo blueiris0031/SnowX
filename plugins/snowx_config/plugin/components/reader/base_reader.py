@@ -4,6 +4,8 @@ from typing import Optional, Type
 
 from snowx.api.logger import get_logger
 
+from ..clock import clock_worker
+
 
 class BaseReader(ABC):
     _type_map: dict[str, Type["BaseReader"]] = {}
@@ -52,13 +54,19 @@ class BaseReader(ABC):
             self._logger.error(f"Failed to read [{path}], use empty dict.", exc_info=e)
             return {}
 
-    def safe_write(self, path: Path, data: dict, **kwargs) -> None:
+    def _real_write(self, path: Path, data: dict, **kwargs) -> None:
         try:
             self._logger.info(f"Trying to write [{path}] ...")
+            self.write(path, data, **kwargs)
+        except Exception as e:
+            self._logger.error(f"Failed to write [{path}].", exc_info=e)
+
+    def safe_write(self, path: Path, data: dict, **kwargs) -> None:
+        try:
             if not isinstance(data, dict):
                 raise TypeError(f'Data to be written to the [{path}] is not a dict')
 
-            self.write(path, data, **kwargs)
+            clock_worker.submit_task(path, self._real_write, (path, data), kwargs)
         except Exception as e:
             self._logger.error(f"Failed to write [{path}].", exc_info=e)
 

@@ -1,9 +1,16 @@
 from pathlib import Path
 from typing import Any, Type
 
-from pydantic import BaseModel
-from ..reader.base_reader import BaseReader
-from ..converter.base_converter import BaseConverter
+from pydantic import (
+    BaseModel,
+    TypeAdapter,
+    ValidationError,
+
+    field_validator,
+)
+
+from ..converter import BaseConverter
+from ..reader import BaseReader
 from ...constants.model import MODEL_TYPE
 
 
@@ -14,6 +21,20 @@ class BaseConfigModelMeta(type(BaseModel)):
         def _cm_get_model_type(cls) -> str:
             return cls._cm_model_type
         model_class._cm_get_model_type = _cm_get_model_type
+
+    @classmethod
+    def add_cm_fallback_default(mcs, model_class: Any) -> None:
+        @field_validator("*", mode="before")
+        @classmethod
+        def _cm_fallback_default(cls, value, info):
+            field = cls.model_fields[info.field_name]
+            try:
+                TypeAdapter(field.annotation).validate_python(value)
+                return value
+            except ValidationError:
+                return field.default if field.default_factory is None else field.default_factory()
+
+        model_class._cm_fallback_default = _cm_fallback_default
 
     def __new__(
             mcs,
@@ -137,6 +158,37 @@ class BaseConfigRootModelMeta(BaseConfigModelMeta):
 
 
 class BaseConfigSubModelMeta(BaseConfigModelMeta):
+    @classmethod
+    def add_cm_save_config(mcs, model_class: Any) -> None:
+        def _cm_save_config(
+                self,
+                reader_kwargs: dict[str, Any] | None = None,
+                converter_kwargs: dict[str, Any] | None = None,
+        ) -> None:
+            self._cm_root_model()._cm_save_config(reader_kwargs, converter_kwargs)
+
+        model_class._cm_save_config = _cm_save_config
+
+    @classmethod
+    def add_cm_has_instance(mcs, model_class: Any) -> None:
+        @classmethod
+        def _cm_has_instance(cls) -> bool:
+            return cls._cm_root_model._cm_has_instance()
+
+        model_class._cm_has_instance = _cm_has_instance
+
+    @classmethod
+    def rewrite_setattr(mcs, model_class: Any) -> None:
+        origin_setattr = model_class.__setattr__
+
+        def __setattr__(self, name: str, value: Any) -> None:
+            origin_setattr(self, name, value)
+            if not self._cm_has_instance():
+                return
+            self._cm_save_config()
+
+        model_class.__setattr__ = __setattr__
+
     def __new__(
             mcs,
             name: str,
@@ -150,9 +202,17 @@ class BaseConfigSubModelMeta(BaseConfigModelMeta):
 
         model_class = super().__new__(mcs, name, bases, attrs, model_type=MODEL_TYPE.SUB, **kwargs)
 
+        model_class._cm_root_model = root_model
+
+        mcs.add_cm_save_config(model_class)
+        mcs.add_cm_has_instance(model_class)
+        mcs.rewrite_setattr(model_class)
+
+        return model_class
 
 
 __all__ = [
     "BaseConfigModelMeta",
     "BaseConfigRootModelMeta",
+    "BaseConfigSubModelMeta",
 ]

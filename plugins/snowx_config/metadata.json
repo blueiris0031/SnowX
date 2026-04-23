@@ -1,7 +1,7 @@
 {
     "PluginID": "snowx_config",
     "PluginName": "SnowX Config Manager",
-    "PluginVersion": "1.0.0",
+    "PluginVersion": "1.1.0",
     "EntryPoint": "plugin",
     "DependentModules": [
         "pydantic"
