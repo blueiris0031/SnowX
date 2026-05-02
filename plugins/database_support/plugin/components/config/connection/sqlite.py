@@ -1,6 +1,6 @@
 from tortoise.exceptions import ConfigurationError
 
-from ...base.config.connection import BaseConnectionConfigGenerator
+from .base import BaseConnectionConfigGenerator
 
 
 class SqliteConnectionConfigGenerator(BaseConnectionConfigGenerator, db_type="sqlite"):
@@ -22,6 +22,4 @@ class SqliteConnectionConfigGenerator(BaseConnectionConfigGenerator, db_type="sq
         return {"file_path": db_path}
 
 
-__all__ = [
-    "SqliteConnectionConfigGenerator",
-]
+__all__ = []
