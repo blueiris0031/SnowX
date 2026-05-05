@@ -5,21 +5,21 @@ from sys import executable, exit
 from traceback import format_exc
 from typing import NoReturn
 
-from .kernel.manager.manager import framework_manager
-from .state.framework import set_stopping, SNOWX_STOP_STATE, wait_stopping
-from .constants.framework import StopState
+from ...constants.framework import StopState
+from ...kernel.manager.manager import framework_manager
+from ...state.framework import set_stopping, SNOWX_STOP_STATE, wait_stopping
 
 
 async def framework_main() -> None:
     loop = asyncio.get_event_loop()
-    loop.add_signal_handler(SIGINT, set_stopping)
+    loop.add_signal_handler(SIGINT, set_stopping, StopState.Stop)
 
     await framework_manager.start()
     await wait_stopping()
     await framework_manager.stop(SNOWX_STOP_STATE.FORCE)
 
 
-def main() -> NoReturn:
+def main(*_) -> NoReturn:
     asyncio.run(framework_main())
 
     anci_args: list[str] = []
