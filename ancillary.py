@@ -1,64 +1,33 @@
-import subprocess
-import sys
-import re
-from os import getcwd, path
+from sys import argv as sys_argv, executable
+from os import execv
+from typing import Any
+from pathlib import Path
 
 
-def start_core():
-    subprocess.Popen(
-        " ".join([sys.executable, path.join(getcwd(), "main.py")]),
-        creationflags=subprocess.CREATE_NEW_CONSOLE if sys.platform == "win32" else 0,
-    )
-
-def install(module_list: list[str]) -> None:
-    for i in module_list:
-        if i.startswith("-") or not re.match(r"^[\w.-]+$", i):
-            continue
-
-        try:
-            print(f"正在安装<{i}>...")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", i])
-            print(f"<{i}>安装成功.")
-
-        except subprocess.CalledProcessError:
-            print(f"<{i}>安装失败.")
+def start_main(*args: Any):
+    execv(executable, [str(Path.cwd() / "main.py"), *args])
 
 
-def e(): pass
-
-def r():
-    start_core()
-
-def i0():
-    if len(sys.argv) < 3:
-        return
-
-    install(sys.argv[2:])
-
-def i1():
-    i0()
-    start_core()
-
-
-PROCESS = {
-    "e": e,
-    "r": r,
-    "i0": i0,
-    "i1": i1,
-}
+def update(update_pack: str, *args: Any):
+    print(update_pack)
+    start_main(*args)
 
 
 def main():
-    if len(sys.argv) < 2:
+    args = sys_argv[1:]
+
+    if not args:
         return
 
-    func = PROCESS.get(sys.argv[1])
-    if func is None:
-        return
+    process = args[0]
+    s_args = args[1:]
 
-    func()
+    match process:
+        case "restart":
+            start_main(*s_args)
+        case "update":
+            update(*s_args)
 
 
 if __name__ == "__main__":
     main()
-    sys.exit(0)
