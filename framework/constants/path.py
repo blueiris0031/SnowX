@@ -14,6 +14,7 @@ class ConstantPath:
     LOGS: Path = BASE / get_config("LOGS_DIR_NAME", "logs", is_valid_filename)
     PLUGINS: Path = BASE / get_config("PLUGINS_DIR_NAME", "plugins", is_valid_filename)
     TEMP: Path = BASE / get_config("TEMP_DIR_NAME", "temp", is_valid_filename)
+    TOOLS: Path = BASE / get_config("TOOLS_DIR_NAME", "tools", is_valid_filename)
 
 
 PATH = ConstantPath()
