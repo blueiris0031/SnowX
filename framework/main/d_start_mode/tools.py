@@ -1,38 +1,37 @@
-from sys import exit
 from traceback import format_exc
-from typing import NoReturn, Callable
+from typing import Callable
 from importlib import import_module
 
 
-def _run() -> int:
-    tool_name = sys_argv[1]
-    if tool_name == __name__:
+def main(*args) -> int:
+    if not args:
+        print("There are no specified running tools.")
         return 1
 
+    tool_name = args[0]
     try:
         tool = import_module(f"tools.{tool_name}")
     except ImportError:
-        print(f"Unknown tool: <{tool_name}>.")
+        print(f"Unknown tool: <{tool_name}>")
         return 1
 
     if not hasattr(tool, "run"):
-        print(f"Unknown tool: <{tool_name}>.")
+        print(f"Unknown tool: <{tool_name}>")
         return 1
-    tool_func: Callable[..., int] = getattr(tool, "run")
+
+    tool_func: Callable[..., int] = getattr(tool, "main")
     if not callable(tool_func):
-        print(f"Unknown tool: <{tool_name}>.")
+        print(f"Unknown tool: <{tool_name}>")
         return 1
 
     try:
-        return tool_func(*sys_argv[3:])
+        return tool_func(args[1:])
     except Exception:
-        print(f"Tool run failed: <{tool_name}>.>")
+        print(f"An exception occurs when the tool is running: <{tool_name}>")
         print(format_exc())
         return 1
 
 
-def main() -> NoReturn:
-    sys_exit(_run())
-
-
-__all__ = ["main"]
+__all__ = [
+    "main",
+]
