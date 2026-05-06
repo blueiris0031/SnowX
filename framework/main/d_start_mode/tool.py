@@ -1,6 +1,7 @@
 from traceback import format_exc
 from typing import Callable
 from importlib import import_module
+from ...constants.path import PATH
 
 
 def main(*args) -> int:
@@ -10,7 +11,7 @@ def main(*args) -> int:
 
     tool_name = args[0]
     try:
-        tool = import_module(f"tools.{tool_name}")
+        tool = import_module(f"{PATH.TOOLS}.{tool_name}")
     except ImportError:
         print(f"Unknown tool: <{tool_name}>")
         return 1
