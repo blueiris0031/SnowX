@@ -1,7 +1,7 @@
-from sys import argv as sys_argv, executable
 from os import execv
-from typing import Any
 from pathlib import Path
+from sys import argv as sys_argv, executable
+from typing import Any
 
 
 def start_main(*args: Any):
