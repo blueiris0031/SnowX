@@ -1,9 +1,8 @@
 import asyncio
 from os import execv
 from signal import SIGINT
-from sys import executable, exit
+from sys import executable
 from traceback import format_exc
-from typing import NoReturn
 
 from ...constants.framework import StopState
 from ...kernel.manager.manager import framework_manager
@@ -19,7 +18,7 @@ async def framework_main() -> None:
     await framework_manager.stop(SNOWX_STOP_STATE.FORCE)
 
 
-def main(*_) -> NoReturn:
+def main(*_) -> int:
     asyncio.run(framework_main())
 
     anci_args: list[str] = []
@@ -30,12 +29,13 @@ def main(*_) -> NoReturn:
         anci_args.append(str(SNOWX_STOP_STATE.UPDATE_PACK))
 
     if not anci_args:
-        exit(0)
+        return 0
     try:
         execv(executable, ["ancillary.py", *anci_args])
     except Exception:
         print(format_exc())
-    exit(1)
+
+    return 1
 
 
 __all__ = [

@@ -18,8 +18,7 @@ def main(*args: Any) -> NoReturn:
         print(f"Unknown arg: <{target_name}>.")
         exit(1)
 
-    target_main(*args[1:])
-    exit(0)
+    exit(target_main(*args[1:]))
 
 
 __all__ = [
