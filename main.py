@@ -7,3 +7,6 @@ if __name__ == '__main__':
 else:
     from framework.main.import_mode import main
     print(f"Import mode return code: {main(*sys_argv[1:])}")
+
+
+__all__ = []
