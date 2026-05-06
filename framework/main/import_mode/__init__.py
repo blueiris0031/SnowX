@@ -4,6 +4,10 @@ from . import mapping
 
 
 def main(*args: Any) -> int:
+    if not args:
+        print("No args provided.")
+        exit(1)
+
     target_name = args[0]
 
     target_module = globals().get(target_name, None)
