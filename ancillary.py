@@ -5,7 +5,7 @@ from typing import Any
 
 
 def start_main(*args: Any):
-    execv(executable, [str(Path.cwd() / "main.py"), *args])
+    execv(executable, [str(Path(__file__).resolve().parent / "main.py"), *args])
 
 
 def update(update_pack: str, *args: Any):
