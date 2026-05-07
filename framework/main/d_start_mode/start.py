@@ -1,6 +1,5 @@
 import asyncio
 from os import execv
-from pathlib import Path
 from signal import SIGINT
 from sys import executable
 from traceback import format_exc
@@ -8,6 +7,7 @@ from traceback import format_exc
 from ...constants.framework import StopState
 from ...kernel.manager.manager import framework_manager
 from ...state.framework import set_stopping, SNOWX_STOP_STATE, wait_stopping
+from ...utils.path import get_main_path
 
 
 async def framework_main() -> None:
@@ -32,7 +32,7 @@ def main(*_) -> int:
     if not anci_args:
         return 0
     try:
-        execv(executable, [str(Path.cwd() / "ancillary.py"), *anci_args])
+        execv(executable, [str(get_main_path().parent / "ancillary.py"), *anci_args])
     except Exception:
         print(format_exc())
 
