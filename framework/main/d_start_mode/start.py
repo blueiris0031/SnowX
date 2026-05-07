@@ -32,7 +32,7 @@ def main(*_) -> int:
     if not anci_args:
         return 0
     try:
-        execv(executable, [str(get_main_path().parent / "ancillary.py"), *anci_args])
+        execv(executable, [executable, str(get_main_path().parent / "ancillary.py"), *anci_args])
     except Exception:
         print(format_exc())
 

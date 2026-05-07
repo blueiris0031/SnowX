@@ -5,11 +5,14 @@ from typing import Any
 
 
 def start_main(*args: Any):
-    execv(executable, [str(Path(__file__).resolve().parent / "main.py"), *args])
+    execv(executable, [executable, str(Path(__file__).resolve().parent / "main.py"), *args])
+
+
+def _updater(update_pack: str) -> bool: ...
 
 
 def update(update_pack: str, *args: Any):
-    print(update_pack)
+    print(update_pack) # Unfinished
     start_main(*args)
 
 
