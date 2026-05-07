@@ -1,10 +1,11 @@
 import json
-from pathlib import Path
 from traceback import format_exc
 from typing import Any, Callable
 
+from ..utils.path import get_main_path
 
-CONFIG_PATH = Path.cwd() / "config.json"
+
+CONFIG_PATH = get_main_path().parent / "config.json"
 
 _infile_config: dict[str, Any] = {}
 _effective_config = {}

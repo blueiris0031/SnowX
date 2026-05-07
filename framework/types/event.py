@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from ..utils.path import get_main_path
+
 
 @dataclass(frozen=True)
 class BaseEvent:
@@ -35,7 +37,7 @@ class SnowXRestartEvent(BaseSnowXControlEvent):
 @dataclass(frozen=True)
 class SnowXUpdateEvent(BaseSnowXControlEvent):
     force: bool
-    update_path: Path = Path.cwd() / "update.zip"
+    update_path: Path = get_main_path().parent / "update.zip"
 
 
 @dataclass(frozen=True)
