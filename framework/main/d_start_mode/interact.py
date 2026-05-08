@@ -25,9 +25,12 @@ def main(*_) -> int:
     except ImportError:
         pass
     console = InteractiveConsole(filename="<snowx_interact>")
-    console.interact(
-        banner=f"Python {sys.version} on {sys.platform}\n{cprt}\n"
-    )
+    try:
+        console.interact(f"Python {sys.version} on {sys.platform}\n{cprt}\n")
+    except SystemExit:
+        pass
+
+    print("Exiting interactive mode...")
     return 0
 
 
