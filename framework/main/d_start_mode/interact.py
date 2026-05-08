@@ -1,4 +1,5 @@
 import sys
+from shutil import get_terminal_size
 from code import InteractiveConsole
 from traceback import format_exc
 
@@ -14,10 +15,10 @@ def main(*_) -> int:
 
     cprt = (
             'Type "help", "copyright", "credits" or "license" for more information.\n\n' +
-            ('-' * 128) + '\n'
+            ((get_terminal_size().columns // 2) * "-") + '\n'
             'You have entered the interactive mode of the framework.\n' +
             'Please note that only the virtual module mapper will be started in interactive mode, not the framework main program.\n' +
-            ('-' * 128)
+            ((get_terminal_size().columns // 2) * "-")
     )
 
     try:
