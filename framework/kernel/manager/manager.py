@@ -6,12 +6,13 @@ from ...state.framework import (
     set_started,
     set_stopping,
 )
+from ...utils.singleton import ConfiguredSingletonClass
 
 
 LOGGER = get_logger("FrameworkManager")
 
 
-class FrameworkManager:
+class FrameworkManager(ConfiguredSingletonClass):
     def __init__(self):
         self._framework_start_sign: bool = False
 
@@ -71,9 +72,6 @@ class FrameworkManager:
         LOGGER.info("Framework stopped.")
 
 
-framework_manager = FrameworkManager()
-
-
 __all__ = [
-    "framework_manager",
+    "FrameworkManager",
 ]

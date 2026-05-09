@@ -1,8 +1,11 @@
-from .container import global_callback_container
+from .container import GlobalCallbackContainer
 from .executor import executor
 from .wrapper import empty_wrapper, process_wrapper, autorun_wrapper
 from ...components.callback.registrar import new_callback_registrar
 from ...constants.callback import CALLBACK_TYPE
+
+
+global_callback_container = GlobalCallbackContainer()
 
 
 on_init = new_callback_registrar(

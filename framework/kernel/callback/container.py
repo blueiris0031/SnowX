@@ -1,9 +1,14 @@
 from ...components.callback.container import CallbackContainer
+from ...utils.singleton import ConfiguredSingletonMeta
 
 
-global_callback_container = CallbackContainer()
+GlobalCallbackContainer = ConfiguredSingletonMeta(
+    "GlobalCallbackContainer",
+    (CallbackContainer, ),
+    {},
+)
 
 
 __all__ = [
-    "global_callback_container",
+    "GlobalCallbackContainer",
 ]

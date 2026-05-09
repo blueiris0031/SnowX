@@ -1,7 +1,7 @@
 import asyncio
 from typing import Awaitable, Callable, Type
 
-from .container import global_callback_container
+from .container import GlobalCallbackContainer
 from ..config import get_config
 from ..event.distributor import event_distributor_manager
 from ..lock import global_async_completion_lock_manager
@@ -13,6 +13,9 @@ from ...types.callback import CallbackItem, CallbackFunction
 from ...types.event import BaseEvent
 from ...utils.queue import TypedAsyncQueue
 from ...utils.worker import ProducerConsumerWorker
+
+
+global_callback_container = GlobalCallbackContainer()
 
 
 PROCESS_EVENT_QUEUE_MAXSIZE = get_config("PROCESS_EVENT_QUEUE_MAXSIZE", 1024)
