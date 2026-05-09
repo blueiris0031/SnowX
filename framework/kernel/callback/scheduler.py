@@ -2,7 +2,7 @@ import asyncio
 from typing import Awaitable, Callable, Type
 
 from .container import global_callback_container
-from ..config import get_config
+from ..config import config_manager
 from ..event.distributor import event_distributor_manager
 from ..lock import global_async_completion_lock_manager
 from ..logger import get_logger
@@ -15,7 +15,7 @@ from ...utils.queue import TypedAsyncQueue
 from ...utils.worker import ProducerConsumerWorker
 
 
-PROCESS_EVENT_QUEUE_MAXSIZE = get_config("PROCESS_EVENT_QUEUE_MAXSIZE", 1024)
+PROCESS_EVENT_QUEUE_MAXSIZE = config_manager.get_config("PROCESS_EVENT_QUEUE_MAXSIZE", 1024)
 
 
 def new_serial_scheduler(cb_type: str) -> SchedulerManager:

@@ -2,12 +2,12 @@ import sys
 from importlib.metadata import distributions
 
 from .command_runner import AsyncCommandRunner
-from ..kernel.config import get_config
+from ..kernel.config import config_manager
 from ..kernel.logger import get_logger
 
 
-TIMEOUT: int = get_config("INSTALL_MODULE_TIMEOUT", 60)
-TERMINATE_TIMEOUT: int = get_config("INSTALL_MODULE_TERMINATE_TIMEOUT", 10)
+TIMEOUT: int = config_manager.get_config("INSTALL_MODULE_TIMEOUT", 60)
+TERMINATE_TIMEOUT: int = config_manager.get_config("INSTALL_MODULE_TERMINATE_TIMEOUT", 10)
 
 
 _installed_list = []
