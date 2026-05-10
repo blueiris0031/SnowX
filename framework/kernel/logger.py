@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 
-from .config import get_config
+from .config import config_manager
 from ..kernel.path import get_log_path
 
 
@@ -10,16 +10,16 @@ LOGGER_LEVEL = {
     "INFO": logging.INFO,
     "WARNING": logging.WARNING,
     "ERROR": logging.ERROR,
-}.get(get_config("LOGGER_LEVEL", "WARNING"), logging.WARNING)
+}.get(config_manager.get_config("LOGGER_LEVEL", "WARNING"), logging.WARNING)
 LOG_FORMATTER = logging.Formatter(
-    get_config("LOG_FORMAT", '[%(levelname)s] %(asctime)s [%(name)s<%(filename)s:%(lineno)d>] - %(message)s')
+    config_manager.get_config("LOG_FORMAT", '[%(levelname)s] %(asctime)s [%(name)s<%(filename)s:%(lineno)d>] - %(message)s')
 )
 
-ENABLE_CONSOLELOG = get_config("ENABLE_CONSOLELOG", True)
+ENABLE_CONSOLELOG = config_manager.get_config("ENABLE_CONSOLELOG", True)
 
-ENABLE_FILELOG = get_config("ENABLE_FILELOG", False)
-FILELOG_MAXBYTES = get_config("FILELOG_MAXBYTES", 3 * 1024 * 1024)
-FILELOG_COUNT = get_config("FILELOG_COUNT", 5)
+ENABLE_FILELOG = config_manager.get_config("ENABLE_FILELOG", False)
+FILELOG_MAXBYTES = config_manager.get_config("FILELOG_MAXBYTES", 3 * 1024 * 1024)
+FILELOG_COUNT = config_manager.get_config("FILELOG_COUNT", 5)
 
 
 def set_handler(handler: logging.Handler) -> logging.Handler:
