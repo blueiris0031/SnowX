@@ -1,0 +1,6 @@
+INLINE_DIRECTORY_NAME = "lib"
+
+
+__all__ = [
+    "INLINE_DIRECTORY_NAME",
+]

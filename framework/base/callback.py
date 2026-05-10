@@ -1,102 +1,132 @@
-from abc import ABC, abstractmethod
-from dataclasses import fields
-from inspect import iscoroutinefunction
-from typing import Any, Type, TypeVar
+from abc import abstractmethod
+from typing import Any, Awaitable, Callable, Iterable, Literal, Self, Type
 
-from ..types.callback import (
-    CallbackFunction,
-
-    BaseArgs,
-    BaseCallbackWrapperArgs,
-    BaseCallbackExecutorArgs, CallbackItem,
-)
+from .executor import BaseExecutor
+from ..types.callback import CallbackItem
+from ..utils.worker import BaseProducerConsumerWorker
 
 
-T = TypeVar("T", bound=BaseArgs)
+class BaseSchedulerItem(BaseProducerConsumerWorker):
+    _scheduler_item_cls_map: dict[str, Type["BaseSchedulerItem"]] = {}
 
+    @classmethod
+    def add_scheduler_item_cls(
+            cls,
+            callback_type: str,
+            item_cls: Type["BaseSchedulerItem"],
+    ):
+        cls._scheduler_item_cls_map[callback_type] = item_cls
 
-def _get_dataclass_keys(dataclass_type: Type[BaseArgs]) -> set[str]:
-    return {field.name for field in fields(dataclass_type)}
+    @classmethod
+    def get_scheduler_item_cls(cls, callback_type: str) -> Type["BaseSchedulerItem"]:
+        if callback_type not in cls._scheduler_item_cls_map:
+            raise LookupError(f"scheduler item does not exist: {callback_type}")
+        return cls._scheduler_item_cls_map[callback_type]
 
+    @classmethod
+    def del_scheduler_item_cls(cls, callback_type: str) -> None:
+        cls._scheduler_item_cls_map.pop(callback_type, None)
 
-def _convert_dataclass(dataclass_type: Type[T], kwargs: dict[str, Any]) -> T:
-    raw_kwargs = {key: kwargs[key] for key in _get_dataclass_keys(dataclass_type) if key in kwargs}
-    return dataclass_type(**raw_kwargs)
+    def __init_subclass__(cls, callback_type: str | None = None) -> None:
+        if callback_type is None:
+            return
+        cls.add_scheduler_item_cls(callback_type, cls)
 
+    def __init__(
+            self,
+            callbacks: Iterable[CallbackItem],
+            executor: BaseExecutor,
+            consumer_queue_maxsize: int = 0,
+            consumer_callback: Callable[[...], None] | None = None,
+            **extension_method: Callable[[Self, ...], Any],
+    ):
+        super().__init__(consumer_queue_maxsize, consumer_callback)
+        self._callbacks = tuple(callbacks)
+        self._executor = executor
 
-class BaseCallbackExecutor(ABC):
-    def __init__(self, args_type: Type[BaseCallbackExecutorArgs]):
-        self._args_type = args_type
+        self._wrapped_callbacks: tuple[tuple[CallbackItem, Callable[..., Awaitable[tuple[Literal[True], Any] | tuple[Literal[False], Exception]]]], ...] | None = None
 
-    @property
-    def args_type(self) -> Type[BaseCallbackExecutorArgs]:
-        return self._args_type
-
-    def __call__(self, cb_func: CallbackFunction, **kwargs) -> CallbackFunction:
-        executor_args = _convert_dataclass(self.args_type, {"origin_func": cb_func, **kwargs})
-        async def executor(*cb_args, **cb_kwargs) -> Any:
-            return await self.executor(cb_func, executor_args, *cb_args, **cb_kwargs)
-
-        return executor
-
-    @abstractmethod
-    async def executor(self, cb_func: CallbackFunction, executor_args: BaseCallbackExecutorArgs, *cb_args, **cb_kwargs) -> tuple[bool, Any | None]:
-        if iscoroutinefunction(cb_func):
-            return True, await cb_func(*cb_args, **cb_kwargs)
-
-        return True, cb_func(*cb_args, **cb_kwargs)
-
-
-class BaseCallbackWrapper(ABC):
-    def __init__(self, args_type: Type[BaseCallbackWrapperArgs]):
-        self._args_type = args_type
-
-    @property
-    def args_type(self) -> Type[BaseCallbackWrapperArgs]:
-        return self._args_type
-
-    def __call__(self, func: CallbackFunction, executor: BaseCallbackExecutor | None, **kwargs) -> CallbackFunction:
-        if executor is not None:
-            func = executor(func, origin_func=func, **kwargs)
-        wrapper_args = _convert_dataclass(self.args_type, {"origin_func": func, **kwargs})
-        async def wrapper(*cb_args, **cb_kwargs) -> Any:
-            return await self.wrapper(func, wrapper_args, *cb_args, **cb_kwargs)
-
-        return wrapper
-
-    @abstractmethod
-    async def wrapper(self, cb_func: CallbackFunction, wrapper_args: BaseCallbackWrapperArgs, *cb_args, **cb_kwargs) -> Any:
-        pass
-
-
-class BaseSchedulerItem(ABC):
-    def __init__(self, cb_type: str, identifier: str, *callbacks: CallbackItem, **__):
-        self._cb_type = cb_type
-        self._identifier = identifier
-        self._callbacks = callbacks
+        self._extension_method_map: dict[str, Callable[[Self, ...], Any]] = {}
+        for name, method in extension_method.items():
+            self.add_extension_method(name, method)
 
     @property
-    def cb_type(self) -> str:
-        return self._cb_type
-
-    @property
-    def identifier(self) -> str:
-        return self._identifier
+    def executor(self) -> BaseExecutor:
+        """
+        Pre-generated attributes.
+        """
+        return self._executor
 
     @property
     def callbacks(self) -> tuple[CallbackItem, ...]:
+        """
+        Pre-generated attributes.
+        """
         return self._callbacks
 
-    @abstractmethod
-    async def start(self) -> None: ...
+    @property
+    def wrapped_callbacks(self) -> tuple[
+        tuple[
+            CallbackItem,
+            Callable[
+                ..., Awaitable[tuple[Literal[True], Any] | tuple[Literal[False], Exception]]
+            ]
+        ], ...
+    ]:
+        """
+        Pre-generated attributes(Lazy generation).
+        """
+        if self._wrapped_callbacks:
+            return self._wrapped_callbacks
+
+        self._wrapped_callbacks = tuple(
+            (
+                callback,
+                self._executor(callback.func, **callback.extra_kwargs)
+            ) for callback in self.callbacks
+        )
+        return self._wrapped_callbacks
+
+    def add_extension_method(
+            self,
+            name: str,
+            method: Callable[[Self, ...], Any],
+    ) -> None:
+        if hasattr(self, name):
+            raise AttributeError(f"'{name}' already defined")
+        self._extension_method_map[name] = lambda *args, **kwargs: method(self, *args, **kwargs)
+
+    def get_extension_method(
+            self,
+            name: str,
+    ) -> Callable[[Self, ...], Any]:
+        if name not in self._extension_method_map:
+            raise LookupError(f"'{name}' does not exist")
+        return self._extension_method_map[name]
+
+    def del_extension_method(
+            self,
+            name: str,
+    ) -> None:
+        self._extension_method_map.pop(name, None)
+
+    def __getattr__(self, name: str) -> Any:
+        return self.get_extension_method(name)
 
     @abstractmethod
-    async def stop(self, force_stop: bool = False) -> None: ...
+    async def producer(self) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def consumer(self, data: Any) -> Any:
+        pass
+
+
+def get_scheduler_item_cls(callback_type: str) -> Type["BaseSchedulerItem"]:
+    return BaseSchedulerItem.get_scheduler_item_cls(callback_type)
 
 
 __all__ = [
-    "BaseCallbackExecutor",
-    "BaseCallbackWrapper",
-
     "BaseSchedulerItem",
+    "get_scheduler_item_cls",
 ]

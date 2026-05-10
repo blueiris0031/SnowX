@@ -2,14 +2,14 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional, Type
 
-from snowx.api.logger import get_logger
+from snowx.api.logger import LoggerManager
 
 from ..clock import clock_worker
 
 
 class BaseReader(ABC):
     _type_map: dict[str, Type["BaseReader"]] = {}
-    _logger = get_logger("SnowXConfigReader")
+    _logger = LoggerManager().get_logger("SnowXConfigReader")
 
     def __init_subclass__(cls, file_type: str, cover: bool = False) -> None:
         cls.register_reader(file_type, cls, cover)

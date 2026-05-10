@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 from typing import Any, Callable
 
-from ..logger import get_logger
+from ..logger import LoggerManager
 from ...error.version import InvalidVersionValueError
 from ...types.plugin import (
     Metadata,
@@ -14,7 +14,7 @@ from ...utils.version import Version
 
 METADATA_FILENAME = "metadata.json"
 
-LOGGER = get_logger("MetadataLoader")
+LOGGER = LoggerManager().get_logger("MetadataLoader")
 
 
 def _generic_err_logger(plugin_path: Path, message: str, exc_info: Exception | None = None) -> None:

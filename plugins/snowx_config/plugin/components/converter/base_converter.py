@@ -2,12 +2,12 @@ from abc import ABC, abstractmethod
 from typing import Optional, Type, Callable
 
 from pydantic import BaseModel
-from snowx.api.logger import get_logger
+from snowx.api.logger import LoggerManager
 
 
 class BaseConverter(ABC):
     _name_map: dict[str, Type["BaseConverter"]] = {}
-    _logger = get_logger("SnowXConfigConverter")
+    _logger = LoggerManager().get_logger("SnowXConfigConverter")
 
     def __init_subclass__(cls, name: str, cover: bool = False) -> None:
         cls.register_converter(name, cls, cover)

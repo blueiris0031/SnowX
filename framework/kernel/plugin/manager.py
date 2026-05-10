@@ -9,12 +9,12 @@ from .deps import (
     get_rdeps_plugin,
 )
 from .info import get_all_plugin_info
-from ..logger import get_logger
-from ...components.callback.executor import BuiltinExecutor
+from ..logger import LoggerManager
+from ...components.executor import EmptyExecutor
 from ...types.plugin import Info, Item
 
 
-LOGGER = get_logger("PluginManager")
+LOGGER = LoggerManager().get_logger("PluginManager")
 
 
 class PluginManager:
@@ -28,7 +28,7 @@ class PluginManager:
 
         self._plugin_infos: dict[str, Info] = {}
         self._loaded_plugins: dict[str, Item] = {}
-        self._executor = BuiltinExecutor()
+        self._executor = EmptyExecutor()
 
         self.update_plugin_infos()
 
@@ -57,15 +57,11 @@ class PluginManager:
     def loaded_deps_table(self) -> dict[str, tuple[str, ...]]:
         return get_deps_table_from_item(self.loaded_plugins.values())
 
-    @property
-    def executor(self) -> BuiltinExecutor:
-        return self._executor
-
     def update_plugin_infos(self) -> None:
         self._plugin_infos = {info.metadata.id: info for info in get_all_plugin_info()}
 
     def _wrap_func(self, func: Callable[..., Awaitable[...] | ...]) -> Callable[..., Awaitable[...]]:
-        executor_wrapped = self.executor(
+        executor_wrapped = self._executor(
             func,
             identifier="plugin_manager",
             func_name=getattr(func, "__name__", "UnknownFunction"),

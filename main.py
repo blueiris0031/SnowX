@@ -1,12 +1,11 @@
-from sys import argv as sys_argv
-
-
 if __name__ == '__main__':
-    from framework.main.d_start_mode import main
-    main(*sys_argv[1:])
+    from framework.kernel import main
+
+    main()
 else:
-    from framework.main.import_mode import main
-    print(f"Import mode return code: {main(*sys_argv[1:])}")
+    from warnings import warn
+
+    warn("Import mode is no longer available.", RuntimeWarning)
 
 
 __all__ = []

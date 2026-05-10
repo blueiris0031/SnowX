@@ -3,11 +3,12 @@ __pycache__/
 /*
 
 !framework/
+!lib/
 !plugins/
 
 !.gitignore
 !ancillary.py
 !main.py
+!LICENSE
 !README.md
 !README_zh.md
-!LICENSE

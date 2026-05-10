@@ -1,103 +1,84 @@
-from inspect import getmodule
+import logging
+import traceback
+import warnings
+from typing import Callable, TypeVar
 
 from .container import CallbackContainer
-from ...base.callback import BaseCallbackExecutor, BaseCallbackWrapper
-from ...kernel.logger import get_logger
-from ...types.callback import (
-    CallbackFunction,
-    CallbackRegistrar,
-
-    FunctionNameGetter,
-    FunctionIdentifierGetter,
-)
-from ...types.plugin import Metadata
+from ...types.callback import CallbackItem
+from ...utils.void import VoidClass
 
 
-LOGGER = get_logger("CallbackRegistrar")
+_C = TypeVar("_C", bound=Callable)
+_IR = Callable[[_C, ...], _C]
+_R = Callable[[None, ...], _IR] | _IR
 
 
-def _get_func_id(func: CallbackFunction) -> str:
-    module = getmodule(func)
-    if module is None:
-        return ""
-    metadata = getattr(module, "__plugin_metadata__", None)
-    if not isinstance(metadata, Metadata):
-        return ""
-    return metadata.id
-
-
-def _get_func_name(func: CallbackFunction) -> str:
-    name = getattr(func, "__name__", None)
-    if not isinstance(name, str):
-        return "UnknownFunction"
-    return name
-
-
-def _getter(func: CallbackFunction, getter: FunctionIdentifierGetter | FunctionNameGetter, specified: str | None) -> str:
-    if isinstance(specified, str) and specified:
-        return specified
-    if not callable(getter):
-        return ""
-    return getter(func)
+def _getter(
+        func: Callable,
+        getter: Callable[[Callable], str] | None,
+        priority: str | None,
+) -> str:
+    if isinstance(priority, str) and priority:
+        return priority
+    try:
+        return getter(func)
+    except Exception:
+        warnings.warn(f"An abnormality in the getter when obtaining the <{func}>, skip", RuntimeWarning)
+        traceback.print_exc()
+    return ""
 
 
 def new_callback_registrar(
         container: CallbackContainer,
         callback_type: str,
-        func_id_getter: FunctionIdentifierGetter | None = None,
-        func_name_getter: FunctionNameGetter | None = None,
-        wrapper: BaseCallbackWrapper | None = None,
-        executor: BaseCallbackExecutor | None = None,
-) -> CallbackRegistrar:
+        id_getter: Callable[[Callable], str] | None = None,
+        name_getter: Callable[[Callable], str] | None = None,
+        logger: logging.Logger | None = None,
+) -> _R:
     """
     Create a new callback registrar.
     :param container: The callback container instance that needs to be registered.
     :param callback_type: The type of the callback.
-    :param func_id_getter: This getter is used to obtain the unified identifier of the callback function.
+    :param id_getter: This getter is used to obtain the unified identifier of the callback function.
      This identifier will be used for the storage and management of the callback container.
      If the identifier obtained by the getter is an empty string or none, this callback function will not be registered.
-     If this parameter is none, use the built-in getter.
-    :param func_name_getter: This getter is used to obtain the name of the callback function.
+    :param name_getter: This getter is used to obtain the name of the callback function.
      Unlike the unified identifier getter, the name obtained by the name getter is only used for the logger.
      Even if the getter returns an empty string, it will register this callback function.
-     If this parameter is none, use the built-in getter.
-    :param wrapper: This wrapper will wrap the registered callback function. If this parameter is empty, the registered function will not be wrapped.
-     For detailed information about the wrapper, please refer to [Components-Callback-Wrapper] chapter of the development document.
-    :param executor: This executor will be passed into the wrapper. If the wrapper is none, this parameter will be ignored.
-     For detailed information about the executor, please refer to [Components-Callback-Executor] chapter of the development document.
+    :param logger: Logger.
     :return: Callback registrar.
     """
-    def registrar(identifier: str | CallbackFunction | None = None, func_name: str | None = None, **wrapper_kwargs) -> CallbackRegistrar | CallbackFunction:
-        def decorator(func: CallbackFunction) -> CallbackFunction:
-            id_ = _getter(func, func_id_getter or _get_func_id, identifier)
-            name = _getter(func, func_name_getter or _get_func_name, func_name)
+    c_logger = logger if logger else VoidClass()
+
+    def registrar(
+            func: _C | None = None,
+            identifier: str | None = None,
+            func_name: str | None = None,
+            *extra_args,
+            **extra_kwargs,
+    ) -> _IR | _C:
+        def decorator(func_: _C) -> _C:
+            id_ = _getter(func_, id_getter, identifier)
+            name = _getter(func_, name_getter, func_name)
+
+            if not callable(func_):
+                c_logger.error(f"[{id_}<{name}>]: Failed to register in <{callback_type}>, because the incoming object is not callable.")
+                return func_
 
             if not id_:
-                LOGGER.error(f"[UnknownIdentifier<{name}>]: Failed to register in <{callback_type}>, because the identifier is invalid.")
-                return func
+                c_logger.error(f"[UnknownIdentifier<{name}>]: Failed to register in <{callback_type}>, because the identifier is invalid.")
+                return func_
 
-            if not callable(func):
-                LOGGER.error(f"[{id_}<{name}>]: Failed to register in <{callback_type}>, because the incoming object is not callable.")
-                return func
+            container.auto_add(CallbackItem(callback_type, id_, name, func_, extra_args, extra_kwargs))
+            c_logger.info(f"[{id_}<{name}>]: Successfully registered in <{callback_type}>.")
+            return func_
 
-            if wrapper:
-                try:
-                    container.add(id_, name, callback_type, func, wrapper(func, executor, identifier=id_, func_name=name, **wrapper_kwargs))
-                except Exception as e:
-                    LOGGER.error(f"[{id_}<{name}>]: Failed to register in <{callback_type}>, because the callback function wrapping failed.", exc_info=e)
-                    return func
-            else:
-                container.add(id_, name, callback_type, func, func)
-
-            LOGGER.info(f"[{id_}<{name}>]: Successfully registered in <{callback_type}>.")
-            return func
-
-        if callable(identifier):
-            be_decorated, identifier = identifier, None
-            return decorator(be_decorated)
+        if func is not None:
+            return decorator(func)
 
         return decorator
 
+    c_logger.info(f"Successfully create the registrar: [{callback_type}]")
     return registrar
 
 

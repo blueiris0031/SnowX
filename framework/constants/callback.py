@@ -17,15 +17,15 @@ CALLBACK_TYPE = CallbackType()
 
 
 @dataclass(frozen=True)
-class ExecutionMethod:
+class ExecutionMode:
     SERIAL: Callable[..., Awaitable[tuple[Any, ...]]] = serial_executor
     PARALLEL: Callable[..., Awaitable[tuple[Any, ...]]] = gather
 
 
-EXECUTION_METHOD = ExecutionMethod()
+EXECUTION_MODE = ExecutionMode()
 
 
 __all__ = [
     "CALLBACK_TYPE",
-    "EXECUTION_METHOD",
+    "EXECUTION_MODE",
 ]

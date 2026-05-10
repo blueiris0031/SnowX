@@ -1,26 +1,19 @@
-import asyncio
+from threading import Lock
 
 
-class AsyncCompletionLock:
+class ExclusiveLock:
     def __init__(self):
-        self._runner_lock = asyncio.Event()
-        self._runner_lock.set()
+        self._lock = Lock()
 
-        self._enter_count = 0
+    def __enter__(self):
+        acquired = self._lock.acquire(blocking=False)
+        if not acquired:
+            raise RuntimeError("Attempt to re-acquire an exclusive lock that is already locked")
 
-    async def __aenter__(self):
-        self._runner_lock.clear()
-        self._enter_count += 1
-
-    async def __aexit__(self, *_):
-        self._enter_count = max(0, self._enter_count - 1)
-        if self._enter_count == 0:
-            self._runner_lock.set()
-
-    async def wait(self):
-        await self._runner_lock.wait()
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._lock.release()
 
 
 __all__ = [
-    "AsyncCompletionLock",
+    "ExclusiveLock",
 ]

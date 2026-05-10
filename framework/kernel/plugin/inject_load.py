@@ -1,5 +1,6 @@
 from .manager import PluginManager, plugin_manager
 from ...constants.framework import FRAMEWORK_METADATA
+from ...constants.callback import CALLBACK_TYPE
 
 
 def load_check_sx_version(manager: PluginManager, identifier: str) -> bool:
@@ -70,35 +71,36 @@ def unload_import_plugin(manager: PluginManager, identifier: str, _) -> None:
 plugin_manager.inject_load_func(load_import_plugin, unload_import_plugin)
 
 
-from ..callback.container import global_callback_container
-from ..callback.scheduler import init_scheduler, exit_scheduler
+from ..callback.container import GlobalCallbackContainer
+from ..callback.scheduler import GlobalSchedulerManager
 from ...types.callback import CallbackResultItem
 
+global_callback_container = GlobalCallbackContainer()
+global_scheduler_manager = GlobalSchedulerManager()
+
 async def load_callback_run(_, identifier: str) -> bool:
-    await init_scheduler.start(identifier)
-    init_result: tuple[CallbackResultItem] = await init_scheduler.get_result(identifier)
+    await global_scheduler_manager.start(CALLBACK_TYPE.INIT, identifier)
+    init_result: tuple[CallbackResultItem] = await global_scheduler_manager.get_running_item(CALLBACK_TYPE.INIT, identifier).get_result()
     return all(result.is_success for result in init_result)
 
 async def unload_callback_run(_, identifier: str, force: bool) -> None:
     if not force:
-        await exit_scheduler.start(identifier)
-        await exit_scheduler.get_result(identifier)
+        await global_scheduler_manager.start(CALLBACK_TYPE.EXIT, identifier)
+        await global_scheduler_manager.get_running_item(CALLBACK_TYPE.EXIT, identifier).get_result()
 
-    global_callback_container.remove_from_plugin_id(identifier)
+    global_callback_container.auto_remove(identifier)
 
 plugin_manager.inject_load_func(load_callback_run, unload_callback_run)
 
 
-from ..callback.scheduler import process_scheduler, autorun_scheduler
-
 async def load_start_cb_scheduler(_, identifier: str) -> bool:
-    await process_scheduler.start(identifier)
-    await autorun_scheduler.start(identifier)
+    await global_scheduler_manager.start(CALLBACK_TYPE.PROCESS, identifier)
+    await global_scheduler_manager.start(CALLBACK_TYPE.AUTORUN, identifier)
     return True
 
 async def unload_start_cb_scheduler(_, plugin_id: str, force: bool) -> None:
-    await autorun_scheduler.stop(plugin_id, force)
-    await process_scheduler.stop(plugin_id, force)
+    await global_scheduler_manager.stop(CALLBACK_TYPE.PROCESS, plugin_id, force)
+    await global_scheduler_manager.stop(CALLBACK_TYPE.AUTORUN, plugin_id, force)
 
 plugin_manager.inject_load_func(load_start_cb_scheduler, unload_start_cb_scheduler)
 
