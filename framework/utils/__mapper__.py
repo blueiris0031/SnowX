@@ -4,6 +4,7 @@ from . import module
 from . import path
 from . import queue
 from . import serial_executor
+from . import singleton
 from . import version
 from . import worker
 from ..constants.vmodule import VMODULE_ROOT_PATH, VMODULE_SUBROOT_PATH
@@ -19,5 +20,6 @@ adder.get_sub_adder("module").auto_add(module)
 adder.get_sub_adder("path").auto_add(path)
 adder.get_sub_adder("queue").auto_add(queue)
 adder.get_sub_adder("serial_executor").auto_add(serial_executor)
+adder.get_sub_adder("singleton").auto_add(singleton)
 adder.get_sub_adder("version").auto_add(version)
 adder.get_sub_adder("worker").auto_add(worker)
