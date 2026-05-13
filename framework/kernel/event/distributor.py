@@ -3,7 +3,7 @@ from typing import Hashable, Type
 
 from .bus import global_event_bus
 from ..config import config_manager
-from ..logger import get_logger
+from ..logger import LoggerManager
 from ...types.event import BaseEvent
 from ...utils.queue import TypedAsyncQueue
 from ...utils.worker import ProducerConsumerWorker
@@ -13,7 +13,7 @@ from copy import copy
 DISTRIBUTOR_QUEUE_MAXSIZE = config_manager.get_config("DISTRIBUTOR_QUEUE_MAXSIZE", 1024)
 DISTRIBUTOR_BUFFER_MAXSIZE = config_manager.get_config("DISTRIBUTOR_BUFFER_MAXSIZE", 256)
 
-LOGGER = get_logger("EventDistributor")
+LOGGER = LoggerManager().get_logger("EventDistributor")
 
 
 class EventDistributorManager:

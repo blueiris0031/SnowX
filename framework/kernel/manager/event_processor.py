@@ -3,7 +3,7 @@ import functools
 from typing import Awaitable, Callable
 
 from ..callback.registrar import on_process
-from ..logger import get_logger
+from ..logger import LoggerManager
 from ..plugin.api import (
     load_plugin,
     unload_plugin,
@@ -33,7 +33,7 @@ from ...types.event import (
 from ...types.plugin import Metadata
 
 
-LOGGER = get_logger(FRAMEWORK_METADATA.NAME)
+LOGGER = LoggerManager().get_logger(FRAMEWORK_METADATA.NAME)
 
 __plugin_metadata__ = Metadata(
     id=FRAMEWORK_METADATA.ID,

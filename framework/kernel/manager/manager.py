@@ -1,6 +1,6 @@
 from typing import Any, Awaitable, Callable
 
-from ..logger import get_logger
+from ..logger import LoggerManager
 from ...components.callback.executor import BuiltinExecutor
 from ...state.framework import (
     set_started,
@@ -8,7 +8,7 @@ from ...state.framework import (
 )
 
 
-LOGGER = get_logger("FrameworkManager")
+LOGGER = LoggerManager().get_logger("FrameworkManager")
 
 
 class FrameworkManager:

@@ -4,7 +4,7 @@ from typing import Any, Type
 from ...base.callback import BaseCallbackExecutor, BaseCallbackWrapper
 from ...kernel.event.bus import global_event_bus
 from ...kernel.lock import global_async_completion_lock_manager
-from ...kernel.logger import get_logger
+from ...kernel.logger import LoggerManager
 from ...types.callback import BaseCallbackWrapperArgs, CallbackFunction
 from ...types.callback import (
     BuiltinEmptyWrapperArgs,
@@ -14,7 +14,7 @@ from ...types.callback import (
 from ...types.event import BaseEvent
 
 
-LOGGER = get_logger("CallbackWrapper")
+LOGGER = LoggerManager().get_logger("CallbackWrapper")
 
 
 class EmptyWrapper(BaseCallbackWrapper):
