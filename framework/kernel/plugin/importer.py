@@ -1,12 +1,12 @@
 import importlib.util as imp_util
 from sys import modules as sys_modules
 
-from ..logger import get_logger
+from ..logger import LoggerManager
 from ..vmodule.expand import add_plugin, del_plugin
 from ...types.plugin import Info as PluginInfo, Item as PluginItem
 
 
-LOGGER = get_logger("Importer")
+LOGGER = LoggerManager().get_logger("Importer")
 
 
 _imported: set[str] = set()

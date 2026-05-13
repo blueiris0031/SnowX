@@ -7,11 +7,11 @@ from typing import Any, Callable, Type
 from .container import CallbackContainer
 from ...base.callback import BaseSchedulerItem
 from ...constants.callback import EXECUTION_METHOD
-from ...kernel.logger import get_logger
+from ...kernel.logger import LoggerManager
 from ...types.callback import CallbackItem, CallbackResultItem
 
 
-LOGGER = get_logger("SchedulerManager")
+LOGGER = LoggerManager().get_logger("SchedulerManager")
 
 
 class SchedulerManager:

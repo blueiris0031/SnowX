@@ -5,7 +5,7 @@ from .container import global_callback_container
 from ..config import config_manager
 from ..event.distributor import event_distributor_manager
 from ..lock import global_async_completion_lock_manager
-from ..logger import get_logger
+from ..logger import LoggerManager
 from ...base.callback import BaseSchedulerItem
 from ...components.callback.scheduler import SchedulerManager, SingleExecutionSchedulerItem, get_result
 from ...constants.callback import CALLBACK_TYPE, EXECUTION_METHOD
@@ -31,7 +31,7 @@ init_scheduler = new_serial_scheduler(CALLBACK_TYPE.INIT)
 exit_scheduler = new_serial_scheduler(CALLBACK_TYPE.EXIT)
 
 
-PROCESS_TYPE_LOGGER = get_logger("ProcessScheduler")
+PROCESS_TYPE_LOGGER = LoggerManager().get_logger("ProcessScheduler")
 
 class ProcessSchedulerItem(BaseSchedulerItem):
     def __init__(

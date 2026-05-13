@@ -2,7 +2,7 @@ import asyncio
 from typing import Any
 
 from ...base.callback import BaseCallbackExecutor
-from ...kernel.logger import get_logger
+from ...kernel.logger import LoggerManager
 from ...types.callback import (
     CallbackFunction,
 
@@ -11,7 +11,7 @@ from ...types.callback import (
 )
 
 
-LOGGER = get_logger("CallbackExecutor")
+LOGGER = LoggerManager().get_logger("CallbackExecutor")
 
 
 class EmptyExecutor(BaseCallbackExecutor):

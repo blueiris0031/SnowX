@@ -2,10 +2,10 @@ import asyncio
 from pathlib import Path
 
 from ..constants.command_runner import ProcessStatus
-from ..kernel.logger import get_logger
+from ..kernel.logger import LoggerManager
 
 
-LOGGER = get_logger("CommandRunner")
+LOGGER = LoggerManager().get_logger("CommandRunner")
 
 
 class AsyncCommandRunner:

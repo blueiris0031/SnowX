@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from snowx.api.logger import get_logger
+from snowx.api.logger import LoggerManager
 
 
-LOGGER = get_logger("EventCounter")
+LOGGER = LoggerManager().get_logger("EventCounter")
 
 
 class Counter:

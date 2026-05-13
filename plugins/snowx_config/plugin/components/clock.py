@@ -1,12 +1,12 @@
 import asyncio
 from typing import Any, Callable, Hashable, Iterable
 
-from snowx.api.logger import get_logger
+from snowx.api.logger import LoggerManager
 from snowx.utils.worker import ProducerConsumerWorker
 
 
 class ClockWorker:
-    _logger = get_logger("SnowXConfig.ClockWorker")
+    _logger = LoggerManager().get_logger("SnowXConfig.ClockWorker")
 
     def __init__(self, interval: int = 1):
         self._interval = interval

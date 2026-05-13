@@ -3,7 +3,7 @@ from importlib.metadata import distributions
 
 from .command_runner import AsyncCommandRunner
 from ..kernel.config import config_manager
-from ..kernel.logger import get_logger
+from ..kernel.logger import LoggerManager
 
 
 TIMEOUT: int = config_manager.get_config("INSTALL_MODULE_TIMEOUT", 60)
@@ -19,7 +19,7 @@ def _update_installed_list() -> None:
 _update_installed_list()
 
 
-LOGGER = get_logger("ModuleInstaller")
+LOGGER = LoggerManager().get_logger("ModuleInstaller")
 
 
 async def install_module(module_name: str) -> bool:

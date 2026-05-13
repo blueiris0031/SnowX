@@ -2,7 +2,7 @@ from inspect import getmodule
 
 from .container import CallbackContainer
 from ...base.callback import BaseCallbackExecutor, BaseCallbackWrapper
-from ...kernel.logger import get_logger
+from ...kernel.logger import LoggerManager
 from ...types.callback import (
     CallbackFunction,
     CallbackRegistrar,
@@ -13,7 +13,7 @@ from ...types.callback import (
 from ...types.plugin import Metadata
 
 
-LOGGER = get_logger("CallbackRegistrar")
+LOGGER = LoggerManager().get_logger("CallbackRegistrar")
 
 
 def _get_func_id(func: CallbackFunction) -> str:

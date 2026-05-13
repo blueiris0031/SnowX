@@ -9,12 +9,12 @@ from .deps import (
     get_rdeps_plugin,
 )
 from .info import get_all_plugin_info
-from ..logger import get_logger
+from ..logger import LoggerManager
 from ...components.callback.executor import BuiltinExecutor
 from ...types.plugin import Info, Item
 
 
-LOGGER = get_logger("PluginManager")
+LOGGER = LoggerManager().get_logger("PluginManager")
 
 
 class PluginManager:
